@@ -27,63 +27,62 @@ job_links = driver.find_elements(By.CSS_SELECTOR, 'a.JobListing_jobApplyBtn__KGn
 output_dir = 'job_descriptions'
 os.makedirs(output_dir, exist_ok=True)
 
+csv_file_path = os.path.join(output_dir, 'job_descriptions.csv')
 
-# Loop through each job link and save specific job information to an excel file
-# For each job:
-# save job title
-# company
-# location
-# content intro
-# description
-# pay range
+with open(csv_file_path, mode='w', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Job Title', 'Company', 'Location', 'Content Intro', 'Job Description', 'Pay Range'])
 
-for job_link in job_links:
-    # Get the href attribute
-    href = job_link.get_attribute('href')
-    
-    # Open the link in a new tab
-    driver.execute_script("window.open(arguments[0]);", href)
-    
-    # Switch to the new tab
-    driver.switch_to.window(driver.window_handles[-1])
-    
-    # Wait for the job description to load
-    time.sleep(3)
-    
-    # Get job title
-    job_title = driver.find_element(By.XPATH, '//*[@id="header"]/h1').text
+    for job_link in job_links:
+        # Get the href attribute
+        href = job_link.get_attribute('href')
+        
+        # Open the link in a new tab
+        driver.execute_script("window.open(arguments[0]);", href)
+        
+        # Switch to the new tab
+        driver.switch_to.window(driver.window_handles[-1])
+        
+        # Wait for the job description to load
+        time.sleep(3)
+        
+        # Get job title
+        job_title = driver.find_element(By.XPATH, '//*[@id="header"]/h1').text
 
-    # Get company
-    company = driver.find_element(By.CSS_SELECTOR, 'span.company-name').text
+        # Get company
+        company = driver.find_element(By.CSS_SELECTOR, 'span.company-name').text
 
-    # Get Location
-    location = driver.find_element(By.CSS_SELECTOR, 'div.location').text
+        # Get Location
+        location = driver.find_element(By.CSS_SELECTOR, 'div.location').text
 
-    # Get the content intro
-    content_intro = driver.find_element(By.CSS_SELECTOR, 'div.content-intro').text
+        # Get the content intro
+        content_intro = driver.find_element(By.CSS_SELECTOR, 'div.content-intro').text
 
-    # get the job description
-    content_para = driver.find_element(By.ID, 'content')
-    job_description = content_para.find_elements(By.TAG_NAME, 'p')
+        # get the job description
+        content_para = driver.find_element(By.ID, 'content')
+        job_description = content_para.text
 
-    # get pay range
-    pay_range = driver.find_element(By.CSS_SELECTOR, 'div.pay-range').text
-    
-    
-     # Print the extracted information
-    print(f"Job Title: {job_title}")
-    print(f"Company: {company}")
-    print(f"Location: {location}")
-    print(f"Content Intro: {content_intro}")
-    print(f"Job Description: {job_description}")
-    print(f"Pay Range: {pay_range}")
-    print('-' * 40)
+        # get pay range
+        pay_range = driver.find_element(By.CSS_SELECTOR, 'div.pay-range').text
+        
+        
+        # Print the extracted information
+        print(f"Job Title: {job_title}")
+        print(f"Company: {company}")
+        print(f"Location: {location}")
+        print(f"Content Intro: {content_intro}")
+        print(f"Job Description: {job_description}")
+        print(f"Pay Range: {pay_range}")
+        print('-' * 40)
 
-    # Close the new tab
-    driver.close()
+        # Close the new tab
+        driver.close()
 
-    # Wait for the job listings to reload (adjust the wait time as necessary)
-    time.sleep(3)
+        # switch back to the original tab
+        driver.switch_to.window(driver.window_handles[0])
+
+        # Wait for the job listings to reload (adjust the wait time as necessary)
+        time.sleep(3)
 
 # Close the WebDriver
 driver.quit()
