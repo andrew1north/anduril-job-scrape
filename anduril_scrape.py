@@ -31,48 +31,74 @@ with open(csv_file_path, mode='w', encoding='utf-8') as file:
     writer.writerow(['Job Title', 'Company', 'Location', 'Content Intro', 'Job Description', 'Pay Range'])
 
     for job_link in job_links:
-        # Get the href attribute
-        href = job_link.get_attribute('href')
-        
-        # Open the link in a new tab
-        driver.execute_script("window.open(arguments[0]);", href)
-        
-        # Switch to the new tab
-        driver.switch_to.window(driver.window_handles[-1])
-        
-        # Wait for the job description to load
-        time.sleep(2)
-        
-        # Get job title
-        job_title = driver.find_element(By.XPATH, '//*[@id="header"]/h1').text
+        try:
+            # Get the href attribute
+            href = job_link.get_attribute('href')
+        except Exception as e:
+            href = "Not found"
+            
+        try:
+            # Open the link in a new tab
+            driver.execute_script("window.open(arguments[0]);", href)
+            
+            # Switch to the new tab
+            driver.switch_to.window(driver.window_handles[-1])
+            
+            # Wait for the job description to load
+            time.sleep(2)
+            
+            # Get job title
+            try:
+                job_title = driver.find_element(By.XPATH, '//*[@id="header"]/h1').text
+            except Exception as e:
+                job_title = "Not found"
+            
+            # Get company
+            try:
+                company = driver.find_element(By.CSS_SELECTOR, 'span.company-name').text
+            except Exception as e:
+                company = "Not found"
+            
+            # Get Location
+            try:
+                location = driver.find_element(By.CSS_SELECTOR, 'div.location').text
+            except Exception as e:
+                location = "Not found"
+            
+            # Get the content intro
+            try:
+                content_intro = driver.find_element(By.CSS_SELECTOR, 'div.content-intro').text
+            except Exception as e:
+                content_intro = "Not found"
+            
+            # Get all text from div with id "content"
+            try:
+                content_para = driver.find_element(By.ID, 'content')
+                job_description = content_para.text
+            except Exception as e:
+                job_description = "Not found"
 
-        # Get company
-        company = driver.find_element(By.CSS_SELECTOR, 'span.company-name').text
+            # Get pay range
+            try:
+                pay_range = driver.find_element(By.CSS_SELECTOR, 'div.pay-range').text
+            except Exception as e:
+                pay_range = "Not found"
+            
+            # Write the extracted information to the CSV file
+            writer.writerow([job_title, company, location, content_intro, job_description, pay_range])
 
-        # Get Location
-        location = driver.find_element(By.CSS_SELECTOR, 'div.location').text
+            # Close the new tab
+            driver.close()
 
-        # Get the content intro
-        content_intro = driver.find_element(By.CSS_SELECTOR, 'div.content-intro').text
+            # Switch back to the original tab
+            driver.switch_to.window(driver.window_handles[0])
 
-        # get the job description
-        content_para = driver.find_element(By.ID, 'content')
-        job_description = content_para.text
-
-        # get pay range
-        pay_range = driver.find_element(By.CSS_SELECTOR, 'div.pay-range').text
-        
-        # Write the extracted information to the CSV file
-        writer.writerow([job_title, company, location, content_intro, job_description, pay_range])
-
-        # Close the new tab
-        driver.close()
-
-        # switch back to the original tab
-        driver.switch_to.window(driver.window_handles[0])
-
-        # Wait for the job listings to reload (adjust the wait time as necessary)
-        time.sleep(2)
+            # Wait for the job listings to reload (adjust the wait time as necessary)
+            time.sleep(3)
+            
+        except Exception as e:
+            print(f"Failed to process job link: {href}")
+            continue
 
 # Close the WebDriver
 driver.quit()
