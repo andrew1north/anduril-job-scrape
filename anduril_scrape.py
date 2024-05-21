@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -6,8 +7,9 @@ import time
 import os
 
 # Set up the WebDriver (ensure you have the appropriate driver for your browser)
-driver_path = 'path_to_your_chromedriver'
-driver = webdriver.Chrome(executable_path=driver_path)
+driver_path = '/Users/andrewsmyth/Documents/chromedriver-mac-arm64/chromedriver'
+service = Service(driver_path)
+driver = webdriver.Chrome(service=service)
 
 # URL to crawl
 url = "https://www.anduril.com/open-roles/?location=Costa+Mesa%2C+California%2C+United+States&department="
