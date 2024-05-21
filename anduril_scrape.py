@@ -1,10 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
-import os
+import time, os, csv
 
 # Set up the WebDriver (ensure you have the appropriate driver for your browser)
 driver_path = '/Users/andrewsmyth/Documents/chromedriver-mac-arm64/chromedriver'
@@ -44,7 +41,7 @@ with open(csv_file_path, mode='w', encoding='utf-8') as file:
         driver.switch_to.window(driver.window_handles[-1])
         
         # Wait for the job description to load
-        time.sleep(3)
+        time.sleep(2)
         
         # Get job title
         job_title = driver.find_element(By.XPATH, '//*[@id="header"]/h1').text
@@ -65,15 +62,8 @@ with open(csv_file_path, mode='w', encoding='utf-8') as file:
         # get pay range
         pay_range = driver.find_element(By.CSS_SELECTOR, 'div.pay-range').text
         
-        
-        # Print the extracted information
-        print(f"Job Title: {job_title}")
-        print(f"Company: {company}")
-        print(f"Location: {location}")
-        print(f"Content Intro: {content_intro}")
-        print(f"Job Description: {job_description}")
-        print(f"Pay Range: {pay_range}")
-        print('-' * 40)
+        # Write the extracted information to the CSV file
+        writer.writerow([job_title, company, location, content_intro, job_description, pay_range])
 
         # Close the new tab
         driver.close()
@@ -82,7 +72,7 @@ with open(csv_file_path, mode='w', encoding='utf-8') as file:
         driver.switch_to.window(driver.window_handles[0])
 
         # Wait for the job listings to reload (adjust the wait time as necessary)
-        time.sleep(3)
+        time.sleep(2)
 
 # Close the WebDriver
 driver.quit()
