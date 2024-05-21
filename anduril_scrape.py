@@ -21,34 +21,69 @@ driver.get(url)
 time.sleep(5)
 
 # Find all job links
-job_links = driver.find_elements(By.CSS_SELECTOR, 'a[href*="/open-roles/"]')
+job_links = driver.find_elements(By.CSS_SELECTOR, 'a.JobListing_jobApplyBtn__KGnsS')
 
 # Create a directory to save job descriptions
 output_dir = 'job_descriptions'
 os.makedirs(output_dir, exist_ok=True)
 
-# Loop through each job link and save the job description
+
+# Loop through each job link and save specific job information to an excel file
+# For each job:
+# save job title
+# company
+# location
+# content intro
+# description
+# pay range
+
 for job_link in job_links:
-    job_title = job_link.text
-    job_link.click()
+    # Get the href attribute
+    href = job_link.get_attribute('href')
+    
+    # Open the link in a new tab
+    driver.execute_script("window.open(arguments[0]);", href)
+    
+    # Switch to the new tab
+    driver.switch_to.window(driver.window_handles[-1])
     
     # Wait for the job description to load
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.job-description')))
+    time.sleep(3)
     
-    # Get the job description
-    job_description = driver.find_element(By.CSS_SELECTOR, '.job-description').text
+    # Get job title
+    job_title = driver.find_element(By.XPATH, '//*[@id="header"]/h1').text
+
+    # Get company
+    company = driver.find_element(By.CSS_SELECTOR, 'span.company-name').text
+
+    # Get Location
+    location = driver.find_element(By.CSS_SELECTOR, 'div.location').text
+
+    # Get the content intro
+    content_intro = driver.find_element(By.CSS_SELECTOR, 'div.content-intro').text
+
+    # get the job description
+    content_para = driver.find_element(By.ID, 'content')
+    job_description = content_para.find_elements(By.TAG_NAME, 'p')
+
+    # get pay range
+    pay_range = driver.find_element(By.CSS_SELECTOR, 'div.pay-range').text
     
-    # Save the job description to a file
-    file_name = f"{output_dir}/{job_title.replace('/', '_')}.txt"
-    with open(file_name, 'w', encoding='utf-8') as file:
-        file.write(job_description)
     
-    
-    # Go back to the main page
-    driver.back() 
-    
+     # Print the extracted information
+    print(f"Job Title: {job_title}")
+    print(f"Company: {company}")
+    print(f"Location: {location}")
+    print(f"Content Intro: {content_intro}")
+    print(f"Job Description: {job_description}")
+    print(f"Pay Range: {pay_range}")
+    print('-' * 40)
+
+    # Close the new tab
+    driver.close()
+
     # Wait for the job listings to reload (adjust the wait time as necessary)
-    time.sleep(5)
+    time.sleep(3)
 
 # Close the WebDriver
 driver.quit()
